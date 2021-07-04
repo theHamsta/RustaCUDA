@@ -33,9 +33,9 @@ bitflags! {
         /// regardless of the flag. However, for legacy reasons, CUDA has a notion of a NULL stream,
         /// which is used as the default when no other stream is provided. Work on other streams
         /// may not be executed concurrently with work on the NULL stream unless this flag is set.
-        /// Since RustaCUDA does not provide access to the NULL stream, this flag has no effect in
-        /// most circumstances. However, it is recommended to use it anyway, as some other crate
-        /// in this binary may be using the NULL stream directly.
+        /// Since RustaCUDA provide access to the NULL stream only via Stream::null(), this flag
+        /// has no effect in most circumstances. However, it is recommended to use it anyway,
+        /// as some other crate in this binary may be using the NULL stream directly.
         const NON_BLOCKING = 0x01;
     }
 }
@@ -95,6 +95,14 @@ impl Stream {
             )
             .to_result()?;
             Ok(stream)
+        }
+    }
+
+    /// Provides access to CUDA's null/default stream. Using the default stream will automatically
+    /// sync all other streams
+    pub fn null() -> Self {
+        Stream {
+            inner: ptr::null_mut(),
         }
     }
 
